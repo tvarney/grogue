@@ -15,6 +15,7 @@ type Driver struct {
 	blocks []Displayer
 	floors []Displayer
 	grass  Displayer
+	player Displayer
 
 	logfile string
 	logfp   io.WriteCloser
@@ -29,6 +30,7 @@ func New() *Driver {
 		blocks: DefaultBlocks(),
 		floors: DefaultFloors(),
 		grass:  Random([]rune{'.', ',', ';'}),
+		player: Simple('☺'),
 	}
 }
 
@@ -147,7 +149,25 @@ func (d *Driver) HandleKeyEventGame(app *game.Application, event *tcell.EventKey
 			return game.ActionMoveUp
 		case '<':
 			return game.ActionMoveDown
+		case 'j':
+			return game.ActionMoveSouth
+		case 'k':
+			return game.ActionMoveNorth
+		case 'h':
+			return game.ActionMoveWest
+		case 'l':
+			return game.ActionMoveEast
+		case '.':
+			return game.ActionWait
 		}
+	case tcell.KeyLeft:
+		return game.ActionMoveWest
+	case tcell.KeyRight:
+		return game.ActionMoveEast
+	case tcell.KeyUp:
+		return game.ActionMoveNorth
+	case tcell.KeyDown:
+		return game.ActionMoveSouth
 	case tcell.KeyCtrlC:
 		return game.ActionQuit
 	}

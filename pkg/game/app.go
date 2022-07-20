@@ -16,6 +16,8 @@ type Application struct {
 	Chunk     *chunk.Chunk
 	Generator *chunk.Generator
 
+	PlayerX int
+	PlayerY int
 	PlayerZ int
 
 	menu  []Menu
@@ -78,6 +80,26 @@ func (a *Application) Update(action Action) RenderRequest {
 	case ActionMoveUp:
 		if a.PlayerZ < chunk.Height-1 {
 			a.PlayerZ++
+			return RenderIncremental
+		}
+	case ActionMoveNorth:
+		if a.PlayerY > 0 {
+			a.PlayerY--
+			return RenderIncremental
+		}
+	case ActionMoveSouth:
+		if a.PlayerY < chunk.Length-1 {
+			a.PlayerY++
+			return RenderIncremental
+		}
+	case ActionMoveWest:
+		if a.PlayerX > 0 {
+			a.PlayerX--
+			return RenderIncremental
+		}
+	case ActionMoveEast:
+		if a.PlayerX < chunk.Width-1 {
+			a.PlayerX++
 			return RenderIncremental
 		}
 	}

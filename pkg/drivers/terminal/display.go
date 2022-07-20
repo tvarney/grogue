@@ -22,6 +22,7 @@ var (
 	emptyStyle = tcell.StyleDefault.
 			Foreground(tcell.NewHexColor(0x001111)).
 			Background(tcell.NewHexColor(0x002222))
+	playerStyle = tcell.StyleDefault.Bold(true)
 )
 
 const (
@@ -87,6 +88,7 @@ func (d *Driver) drawGame(app *game.Application) {
 				)
 			}
 		}
+		d.screen.SetContent(app.PlayerX, app.PlayerY, d.player.Rune(0, 0, 0, 0, 0), nil, playerStyle)
 		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %d   ", app.PlayerZ), tcell.StyleDefault)
 
 		d.screen.Show()
