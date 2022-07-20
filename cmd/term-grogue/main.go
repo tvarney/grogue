@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/tvarney/grogue/pkg/drivers/terminal"
 	"github.com/tvarney/grogue/pkg/game"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func main() {
@@ -17,13 +19,21 @@ func main() {
 }
 
 func run(args []string) error {
+	debug := kingpin.Flag("debug", "enable debug logging").Short('D').Bool()
+	_ = kingpin.Parse()
+
 	app := game.New()
 	driver := terminal.New()
-	driver.SetLog("debug.log")
+
+	if *debug {
+		driver.SetLog("debug.log")
+	}
 
 	if err := driver.Init(); err != nil {
 		return err
 	}
+
+	log.Printf("Starting term-grogue")
 
 	driver.Draw(app)
 	for app.Running {

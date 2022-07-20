@@ -1,5 +1,7 @@
 package game
 
+import "log"
+
 const (
 	MainMenuID = "main-menu"
 )
@@ -41,10 +43,12 @@ func (s *StaticMenu) Start(app *Application) {
 	if s.instances == 1 {
 		s.Cursor = 0
 		if s.OnStart != nil {
+			log.Printf("game.StaticMenu::Start(): ID: %q", s.ID)
 			s.OnStart(app)
 		}
 	} else {
 		if s.OnResume != nil {
+			log.Printf("game.StaticMenu::Resume(): ID: %q", s.ID)
 			s.OnResume(app)
 		}
 	}
@@ -54,10 +58,12 @@ func (s *StaticMenu) Start(app *Application) {
 func (s *StaticMenu) Stop(app *Application) {
 	s.instances--
 	if s.instances == 0 {
+		log.Printf("game.StaticMenu::Stop(): ID: %q", s.ID)
 		if s.OnStop != nil {
 			s.OnStop(app)
 		}
 	} else {
+		log.Printf("game.StaticMenu::Pause(): ID: %q", s.ID)
 		if s.OnPause != nil {
 			s.OnPause(app)
 		}
@@ -68,6 +74,7 @@ func (s *StaticMenu) Stop(app *Application) {
 //
 // This is called when a menu is pushed 'on top of' this one.
 func (s *StaticMenu) Pause(app *Application) {
+	log.Printf("game.StaticMenu::Pause(): ID: %q", s.ID)
 	if s.OnPause != nil {
 		s.OnPause(app)
 	}
@@ -77,6 +84,7 @@ func (s *StaticMenu) Pause(app *Application) {
 //
 // This is called when a menu is 'revealed' by a push action.
 func (s *StaticMenu) Resume(app *Application) {
+	log.Printf("game.StaticMenu::Resume(): ID: %q", s.ID)
 	if s.OnResume != nil {
 		s.OnResume(app)
 	}
@@ -155,7 +163,13 @@ func NewMainMenu() *StaticMenu {
 			"Quit",
 		},
 		Actions: []func(*Application) RenderRequest{
-			nil,
+			func(app *Application) RenderRequest {
+				log.Printf("game.StaticMenu::Actions[0]: Selected New Game")
+				app.InGame = true
+				app.Chunk = app.Generator.Generate()
+				app.PopMenu()
+				return RenderFull
+			},
 			nil,
 			nil,
 			nil,

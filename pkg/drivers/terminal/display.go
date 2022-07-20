@@ -1,14 +1,27 @@
 package terminal
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell"
 	"github.com/tvarney/grogue/pkg/game"
+	"github.com/tvarney/grogue/pkg/game/chunk"
+	"github.com/tvarney/grogue/pkg/game/color"
+	"github.com/tvarney/grogue/pkg/game/tile"
 )
 
 var (
 	titleStyle    = tcell.StyleDefault.Bold(true).Underline(true)
 	optionStyle   = tcell.StyleDefault
 	selectedStyle = tcell.StyleDefault.Underline(true).Foreground(tcell.ColorTeal)
+
+	grassStyles = []tcell.Style{
+		tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(color.DarkGreen.Value()))),
+		tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(color.Green.Value()))),
+	}
+	emptyStyle = tcell.StyleDefault.
+			Foreground(tcell.NewHexColor(0x001111)).
+			Background(tcell.NewHexColor(0x002222))
 )
 
 const (
@@ -22,11 +35,65 @@ func (d *Driver) Clear() {
 
 func (d *Driver) Draw(app *game.Application) {
 	menu := app.GetMenu()
-	if menu == nil {
-		app.Quit()
+	if menu != nil {
+		d.drawMenu(app, menu)
 		return
 	}
 
+	if !app.InGame {
+		app.Quit()
+		return
+	}
+	d.drawGame(app)
+}
+
+func (d *Driver) drawGame(app *game.Application) {
+	const layersize = chunk.Width * chunk.Length
+
+	for y := uint16(0); y < chunk.Length; y++ {
+		if int(y) >= d.height {
+			break
+		}
+		for x := uint16(0); x < chunk.Width; x++ {
+			if int(x) >= d.width {
+				break
+			}
+
+			t := app.Chunk.Tiles[layersize*app.PlayerZ]
+			block := t.Block.Definition
+			floor := t.Floor.Definition
+			if block == tile.BlockEmpty {
+				if floor == tile.FloorEmpty {
+					d.screen.SetContent(int(x), int(y), '.', nil, emptyStyle)
+				} else {
+					if t.Flags&tile.HasGrass != 0 {
+						gc := grassStyles[(int(x)*3+int(y)*2)%len(grassStyles)]
+						d.screen.SetContent(int(x), int(y), d.grass.Rune(0, 0, x, y, t.Value), nil, gc)
+					} else {
+						mat := app.Materials[t.Floor.Material]
+						d.screen.SetContent(
+							int(x), int(y),
+							d.floors[floor].Rune(0, 0, x, y, t.Value), nil,
+							tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value()))),
+						)
+					}
+				}
+			} else {
+				mat := app.Materials[t.Block.Material]
+				d.screen.SetContent(
+					int(x), int(y),
+					d.blocks[block].Rune(0, 0, x, y, t.Value), nil,
+					tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value()))),
+				)
+			}
+		}
+		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %d   ", app.PlayerZ), tcell.StyleDefault)
+
+		d.screen.Show()
+	}
+}
+
+func (d *Driver) drawMenu(app *game.Application, menu game.Menu) {
 	d.drawStringCentered(0, menu.GetTitle(), titleStyle)
 
 	opts := menu.GetOptions()

@@ -1,5 +1,7 @@
 package game
 
+import "log"
+
 // AddMenu adds a menu to the registered list of menus.
 func (a *Application) AddMenu(m Menu) {
 	a.menus[m.GetID()] = m
@@ -9,11 +11,14 @@ func (a *Application) AddMenu(m Menu) {
 func (a *Application) PushMenu(id string) {
 	m, ok := a.menus[id]
 	if ok {
+		log.Printf("game.Application::PushMenu(%q): Pushing menu onto stack", id)
 		if len(a.menu) > 0 {
 			a.menu[len(a.menu)-1].Pause(a)
 		}
 		a.menu = append(a.menu, m)
 		m.Start(a)
+	} else {
+		log.Printf("game.Application::PushMenu(%q): No menu with the given ID", id)
 	}
 }
 
@@ -40,5 +45,6 @@ func (a *Application) GetMenu() Menu {
 
 // Quit signals that the Application should be shut down.
 func (a *Application) Quit() {
+	log.Printf("game.Application::Quit()")
 	a.Running = false
 }

@@ -12,6 +12,10 @@ import (
 
 // Driver is the terminal driver struct.
 type Driver struct {
+	blocks []Displayer
+	floors []Displayer
+	grass  Displayer
+
 	logfile string
 	logfp   io.WriteCloser
 	screen  tcell.Screen
@@ -21,7 +25,11 @@ type Driver struct {
 
 // New creates a new Driver with a new game instance.
 func New() *Driver {
-	return &Driver{}
+	return &Driver{
+		blocks: DefaultBlocks(),
+		floors: DefaultFloors(),
+		grass:  Random([]rune{'.', ',', ';'}),
+	}
 }
 
 func (d *Driver) openlog(filename string) error {
@@ -116,7 +124,12 @@ func (d *Driver) PollAction(app *game.Application) game.Action {
 			d.screen.Sync()
 			d.Draw(app)
 		case *tcell.EventKey:
-			action = d.HandleKeyEventMenu(app, e)
+			menu := app.GetMenu()
+			if menu != nil {
+				action = d.HandleKeyEventMenu(app, e)
+			} else {
+				action = d.HandleKeyEventGame(app, e)
+			}
 		default:
 			app.Quit()
 			log.Printf("Unknown event <%T>: %v", ev, ev)
@@ -124,6 +137,21 @@ func (d *Driver) PollAction(app *game.Application) game.Action {
 	}
 
 	return action
+}
+
+func (d *Driver) HandleKeyEventGame(app *game.Application, event *tcell.EventKey) game.Action {
+	switch event.Key() {
+	case tcell.KeyRune:
+		switch event.Rune() {
+		case '>':
+			return game.ActionMoveUp
+		case '<':
+			return game.ActionMoveDown
+		}
+	case tcell.KeyCtrlC:
+		return game.ActionQuit
+	}
+	return game.ActionNone
 }
 
 func (d *Driver) HandleKeyEventMenu(app *game.Application, event *tcell.EventKey) game.Action {
