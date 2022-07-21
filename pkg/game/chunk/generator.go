@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/tvarney/grogue/pkg/game/material"
+	"github.com/tvarney/grogue/pkg/game/simplehash"
 	"github.com/tvarney/grogue/pkg/game/tile"
 )
 
@@ -47,7 +48,7 @@ func NewGenerator(mats []*material.Material) *Generator {
 // Generate creates a new chunk using the settings from the generator.
 //
 // Right now this just generates a simple flat chunk.
-func (g *Generator) Generate() *Chunk {
+func (g *Generator) Generate(cx, cy int64) *Chunk {
 	const layertiles = Width * Length
 
 	bedrock := tile.State{
@@ -79,31 +80,38 @@ func (g *Generator) Generate() *Chunk {
 
 	c := &Chunk{}
 
-	idx := 0
+	hash := simplehash.Initial32.AddInt64(cx).AddInt64(cy)
+
+	idx := uint16(0)
 	for n := 0; n < layertiles; n++ {
 		c.Tiles[idx] = bedrock
+		c.Tiles[idx].Random = uint32(hash.AddUint16(idx))
 		idx++
 	}
 
 	const stonecount = layertiles * 30
 	for n := 0; n < stonecount; n++ {
 		c.Tiles[idx] = stone
+		c.Tiles[idx].Random = uint32(hash.AddUint16(idx))
 		idx++
 	}
 
 	const dirtcount = layertiles * 2
 	for n := 0; n < dirtcount; n++ {
 		c.Tiles[idx] = dirt
+		c.Tiles[idx].Random = uint32(hash.AddUint16(idx))
 		idx++
 	}
 
 	for n := 0; n < layertiles; n++ {
 		c.Tiles[idx] = grass
+		c.Tiles[idx].Random = uint32(hash.AddUint16(idx))
 		idx++
 	}
 
 	for ; idx < TileCount; idx++ {
 		c.Tiles[idx] = empty
+		c.Tiles[idx].Random = uint32(hash.AddUint16(idx))
 	}
 
 	return c

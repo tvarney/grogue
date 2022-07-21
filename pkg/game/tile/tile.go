@@ -27,8 +27,9 @@ type Part struct {
 
 // State represents a concrete tile.
 type State struct {
-	Block Part
-	Floor Part
-	Flags StateFlags
-	Value uint16
+	Block  Part
+	Floor  Part
+	Flags  StateFlags
+	Value  uint16
+	Random uint32
 }

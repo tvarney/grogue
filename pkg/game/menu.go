@@ -1,6 +1,10 @@
 package game
 
-import "log"
+import (
+	"log"
+
+	"github.com/tvarney/grogue/pkg/game/chunk"
+)
 
 const (
 	MainMenuID = "main-menu"
@@ -166,7 +170,10 @@ func NewMainMenu() *StaticMenu {
 			func(app *Application) RenderRequest {
 				log.Printf("game.StaticMenu::Actions[0]: Selected New Game")
 				app.InGame = true
-				app.Chunk = app.Generator.Generate()
+				app.Chunk = app.Generator.Generate(0, 0)
+				app.PlayerX = chunk.Width / 2
+				app.PlayerY = chunk.Length / 2
+				app.PlayerZ = 33
 				app.PopMenu()
 				return RenderFull
 			},

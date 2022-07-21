@@ -14,6 +14,8 @@ const (
 	// Length is the length (y) of each chunk
 	Length = 32
 
+	LayerSize = Width * Length
+
 	// TileCount is the total number of tile.State entries in a chunk.
 	//
 	// This is the product of the chunk Width, Height, and Length. This value
@@ -32,4 +34,8 @@ type Chunk struct {
 // New returns a new Chunk instance.
 func New() *Chunk {
 	return &Chunk{}
+}
+
+func (c *Chunk) Get(x, y, z int) *tile.State {
+	return &(c.Tiles[(z*LayerSize)+(y*Width)+x])
 }

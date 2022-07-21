@@ -1,14 +1,18 @@
 package terminal
 
+import (
+	"github.com/tvarney/grogue/pkg/game/tile"
+)
+
 // Displayer is the interface all tile displayers must implement.
 type Displayer interface {
-	Rune(cx, cy int, x, y, value uint16) rune
+	Rune(cx, cy int, x, y uint16, t *tile.State) rune
 }
 
 // Simple is a displayer which only ever returns a single rune.
 type Simple rune
 
-func (s Simple) Rune(cx, cy int, x, y, value uint16) rune {
+func (s Simple) Rune(cx, cy int, x, y uint16, t *tile.State) rune {
 	return rune(s)
 }
 
@@ -16,9 +20,8 @@ func (s Simple) Rune(cx, cy int, x, y, value uint16) rune {
 // on the coordinates.
 type Random []rune
 
-func (r Random) Rune(cx, cy int, x, y, value uint16) rune {
-	// TODO: Shuffle bits somewhat
-	return r[(cx+cy+int(x)+int(y))%len(r)]
+func (r Random) Rune(cx, cy int, x, y uint16, t *tile.State) rune {
+	return r[int(t.Random)%len(r)]
 }
 
 // LiquidNumber is a displayer for liquids which shows their depth.

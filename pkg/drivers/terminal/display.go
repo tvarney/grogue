@@ -49,8 +49,6 @@ func (d *Driver) Draw(app *game.Application) {
 }
 
 func (d *Driver) drawGame(app *game.Application) {
-	const layersize = chunk.Width * chunk.Length
-
 	for y := uint16(0); y < chunk.Length; y++ {
 		if int(y) >= d.height {
 			break
@@ -60,7 +58,8 @@ func (d *Driver) drawGame(app *game.Application) {
 				break
 			}
 
-			t := app.Chunk.Tiles[layersize*app.PlayerZ]
+			t := app.Chunk.Get(int(x), int(y), app.PlayerZ)
+
 			block := t.Block.Definition
 			floor := t.Floor.Definition
 			if block == tile.BlockEmpty {
@@ -68,13 +67,16 @@ func (d *Driver) drawGame(app *game.Application) {
 					d.screen.SetContent(int(x), int(y), '.', nil, emptyStyle)
 				} else {
 					if t.Flags&tile.HasGrass != 0 {
-						gc := grassStyles[(int(x)*3+int(y)*2)%len(grassStyles)]
-						d.screen.SetContent(int(x), int(y), d.grass.Rune(0, 0, x, y, t.Value), nil, gc)
+						// Tile selection from a random value uses the random value as-is.
+						// This decouples the value from that selection.
+						r := (t.Random >> 16) | (t.Random << 16)
+						gc := grassStyles[int(r)%len(grassStyles)]
+						d.screen.SetContent(int(x), int(y), d.grass.Rune(0, 0, x, y, t), nil, gc)
 					} else {
 						mat := app.Materials[t.Floor.Material]
 						d.screen.SetContent(
 							int(x), int(y),
-							d.floors[floor].Rune(0, 0, x, y, t.Value), nil,
+							d.floors[floor].Rune(0, 0, x, y, t), nil,
 							tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value()))),
 						)
 					}
@@ -83,13 +85,15 @@ func (d *Driver) drawGame(app *game.Application) {
 				mat := app.Materials[t.Block.Material]
 				d.screen.SetContent(
 					int(x), int(y),
-					d.blocks[block].Rune(0, 0, x, y, t.Value), nil,
+					d.blocks[block].Rune(0, 0, x, y, t), nil,
 					tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value()))),
 				)
 			}
 		}
-		d.screen.SetContent(app.PlayerX, app.PlayerY, d.player.Rune(0, 0, 0, 0, 0), nil, playerStyle)
+		d.screen.SetContent(app.PlayerX, app.PlayerY, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
 		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %d   ", app.PlayerZ), tcell.StyleDefault)
+		currTile := app.Chunk.Get(app.PlayerX, app.PlayerY, app.PlayerZ)
+		d.drawString(0, chunk.Length+1, fmt.Sprintf("Random: 0x%08X   ", currTile.Random), tcell.StyleDefault)
 
 		d.screen.Show()
 	}

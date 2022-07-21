@@ -29,7 +29,7 @@ func New() *Driver {
 	return &Driver{
 		blocks: DefaultBlocks(),
 		floors: DefaultFloors(),
-		grass:  Random([]rune{'.', ',', ';'}),
+		grass:  Random([]rune{'.', '.', '.', ',', ';'}),
 		player: Simple('☺'),
 	}
 }
