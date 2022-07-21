@@ -10,15 +10,13 @@ import (
 // Application is the main game struct, which holds application and game
 // states.
 type Application struct {
-	Running   bool
-	InGame    bool
-	Materials []*material.Material
-	Chunk     *chunk.Chunk
-	Generator *chunk.Generator
+	Running      bool
+	InGame       bool
+	Materials    []*material.Material
+	ActiveChunks [9]*chunk.Chunk
+	Generator    *chunk.Generator
 
-	PlayerX int
-	PlayerY int
-	PlayerZ int
+	Player Coords
 
 	menu  []Menu
 	menus map[string]Menu
@@ -32,9 +30,7 @@ func New() *Application {
 		Running:   true,
 		InGame:    false,
 		Materials: mats,
-		Chunk:     nil,
 		Generator: chunk.NewGenerator(mats),
-		PlayerZ:   0,
 
 		menu:  make([]Menu, 0, 10),
 		menus: map[string]Menu{},
@@ -73,35 +69,17 @@ func (a *Application) Update(action Action) RenderRequest {
 	// Handle game actions
 	switch action {
 	case ActionMoveDown:
-		if a.PlayerZ > 0 {
-			a.PlayerZ--
-			return RenderIncremental
-		}
+		return a.UpdateMovePlayer(0, 0, -1)
 	case ActionMoveUp:
-		if a.PlayerZ < chunk.Height-1 {
-			a.PlayerZ++
-			return RenderIncremental
-		}
+		return a.UpdateMovePlayer(0, 0, 1)
 	case ActionMoveNorth:
-		if a.PlayerY > 0 {
-			a.PlayerY--
-			return RenderIncremental
-		}
+		return a.UpdateMovePlayer(0, -1, 0)
 	case ActionMoveSouth:
-		if a.PlayerY < chunk.Length-1 {
-			a.PlayerY++
-			return RenderIncremental
-		}
+		return a.UpdateMovePlayer(0, 1, 0)
 	case ActionMoveWest:
-		if a.PlayerX > 0 {
-			a.PlayerX--
-			return RenderIncremental
-		}
+		return a.UpdateMovePlayer(-1, 0, 0)
 	case ActionMoveEast:
-		if a.PlayerX < chunk.Width-1 {
-			a.PlayerX++
-			return RenderIncremental
-		}
+		return a.UpdateMovePlayer(1, 0, 0)
 	}
 	return RenderNoChange
 }

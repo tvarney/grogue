@@ -49,6 +49,8 @@ func (d *Driver) Draw(app *game.Application) {
 }
 
 func (d *Driver) drawGame(app *game.Application) {
+	currChunk := app.ActiveChunks[(app.Player.Chunk.X+1)+(app.Player.Chunk.Y+1)*3]
+
 	for y := uint16(0); y < chunk.Length; y++ {
 		if int(y) >= d.height {
 			break
@@ -58,7 +60,7 @@ func (d *Driver) drawGame(app *game.Application) {
 				break
 			}
 
-			t := app.Chunk.Get(int(x), int(y), app.PlayerZ)
+			t := currChunk.Get(int(x), int(y), app.Player.Z)
 
 			block := t.Block.Definition
 			floor := t.Floor.Definition
@@ -90,10 +92,9 @@ func (d *Driver) drawGame(app *game.Application) {
 				)
 			}
 		}
-		d.screen.SetContent(app.PlayerX, app.PlayerY, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
-		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %d   ", app.PlayerZ), tcell.StyleDefault)
-		currTile := app.Chunk.Get(app.PlayerX, app.PlayerY, app.PlayerZ)
-		d.drawString(0, chunk.Length+1, fmt.Sprintf("Random: 0x%08X   ", currTile.Random), tcell.StyleDefault)
+		d.screen.SetContent(app.Player.X, app.Player.Y, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
+		currTile := currChunk.Get(app.Player.X, app.Player.Y, app.Player.Z)
+		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %2d | Random: 0x%08X", app.Player.Z, currTile.Random), tcell.StyleDefault)
 
 		d.screen.Show()
 	}
