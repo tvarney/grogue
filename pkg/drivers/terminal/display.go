@@ -49,7 +49,8 @@ func (d *Driver) Draw(app *game.Application) {
 }
 
 func (d *Driver) drawGame(app *game.Application) {
-	currChunk := app.ActiveChunks[(app.Player.Chunk.X+1)+(app.Player.Chunk.Y+1)*3]
+	game := app.Game
+	currChunk := game.ActiveChunks[(game.Player.Chunk.X+1)+(game.Player.Chunk.Y+1)*3]
 
 	for y := uint16(0); y < chunk.Length; y++ {
 		if int(y) >= d.height {
@@ -60,7 +61,7 @@ func (d *Driver) drawGame(app *game.Application) {
 				break
 			}
 
-			t := currChunk.Get(int(x), int(y), app.Player.Z)
+			t := currChunk.Get(int(x), int(y), game.Player.Z)
 
 			block := t.Block.Definition
 			floor := t.Floor.Definition
@@ -75,7 +76,7 @@ func (d *Driver) drawGame(app *game.Application) {
 						gc := grassStyles[int(r)%len(grassStyles)]
 						d.screen.SetContent(int(x), int(y), d.grass.Rune(0, 0, x, y, t), nil, gc)
 					} else {
-						mat := app.Materials[t.Floor.Material]
+						mat := game.Materials[t.Floor.Material]
 						d.screen.SetContent(
 							int(x), int(y),
 							d.floors[floor].Rune(0, 0, x, y, t), nil,
@@ -84,7 +85,7 @@ func (d *Driver) drawGame(app *game.Application) {
 					}
 				}
 			} else {
-				mat := app.Materials[t.Block.Material]
+				mat := game.Materials[t.Block.Material]
 				d.screen.SetContent(
 					int(x), int(y),
 					d.blocks[block].Rune(0, 0, x, y, t), nil,
@@ -92,11 +93,11 @@ func (d *Driver) drawGame(app *game.Application) {
 				)
 			}
 		}
-		d.screen.SetContent(app.Player.X, app.Player.Y, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
-		currTile := currChunk.Get(app.Player.X, app.Player.Y, app.Player.Z)
-		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %2d | Random: 0x%08X", app.Player.Z, currTile.Random), tcell.StyleDefault)
+		d.screen.SetContent(game.Player.X, game.Player.Y, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
+		currTile := currChunk.Get(game.Player.X, game.Player.Y, game.Player.Z)
+		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %2d | Random: 0x%08X", game.Player.Z, currTile.Random), tcell.StyleDefault)
 		d.clearLine(chunk.Length + 1)
-		d.drawString(0, chunk.Length+1, fmt.Sprintf("Tile: %s", currTile.Describe(app.Blocks, app.Floors, app.Materials)), tcell.StyleDefault)
+		d.drawString(0, chunk.Length+1, fmt.Sprintf("Tile: %s", currTile.Describe(game.Blocks, game.Floors, game.Materials)), tcell.StyleDefault)
 
 		d.screen.Show()
 	}

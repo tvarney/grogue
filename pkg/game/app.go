@@ -11,15 +11,9 @@ import (
 // Application is the main game struct, which holds application and game
 // states.
 type Application struct {
-	Running      bool
-	InGame       bool
-	Materials    []*material.Material
-	Blocks       []tile.Definition
-	Floors       []tile.Definition
-	ActiveChunks [9]*chunk.Chunk
-	Generator    *chunk.Generator
-
-	Player Coords
+	Running bool
+	InGame  bool
+	Game    *Game
 
 	menu  []Menu
 	menus map[string]Menu
@@ -31,12 +25,14 @@ func New() *Application {
 	log.Printf("game::New(): Using %d materials", len(mats))
 	blocks, floors := tile.DefaultDefinitions()
 	app := &Application{
-		Running:   true,
-		InGame:    false,
-		Materials: mats,
-		Blocks:    blocks,
-		Floors:    floors,
-		Generator: chunk.NewGenerator(mats),
+		Running: true,
+		InGame:  false,
+		Game: &Game{
+			Materials: mats,
+			Blocks:    blocks,
+			Floors:    floors,
+			Generator: chunk.NewGenerator(mats),
+		},
 
 		menu:  make([]Menu, 0, 10),
 		menus: map[string]Menu{},

@@ -12,63 +12,63 @@ func (a *Application) UpdateMovePlayer(dx, dy, dz int) RenderRequest {
 
 	switch dx {
 	case -1:
-		if a.Player.X == 0 {
-			if a.Player.Chunk.X != -1 {
-				a.Player.X = chunk.Width - 1
-				a.Player.Chunk.X--
+		if a.Game.Player.X == 0 {
+			if a.Game.Player.Chunk.X != -1 {
+				a.Game.Player.X = chunk.Width - 1
+				a.Game.Player.Chunk.X--
 				ret = RenderIncremental
 			}
 		} else {
-			a.Player.X--
+			a.Game.Player.X--
 			ret = RenderIncremental
 		}
 	case 1:
-		if a.Player.X == chunk.Width-1 {
-			if a.Player.Chunk.X != 1 {
-				a.Player.X = 0
-				a.Player.Chunk.X++
+		if a.Game.Player.X == chunk.Width-1 {
+			if a.Game.Player.Chunk.X != 1 {
+				a.Game.Player.X = 0
+				a.Game.Player.Chunk.X++
 				ret = RenderIncremental
 			}
 		} else {
-			a.Player.X++
+			a.Game.Player.X++
 			ret = RenderIncremental
 		}
 	}
 
 	switch dy {
 	case -1:
-		if a.Player.Y == 0 {
-			if a.Player.Chunk.Y != -1 {
-				a.Player.Y = chunk.Length - 1
-				a.Player.Chunk.Y--
+		if a.Game.Player.Y == 0 {
+			if a.Game.Player.Chunk.Y != -1 {
+				a.Game.Player.Y = chunk.Length - 1
+				a.Game.Player.Chunk.Y--
 				ret = RenderIncremental
 			}
 		} else {
-			a.Player.Y--
+			a.Game.Player.Y--
 			ret = RenderIncremental
 		}
 	case 1:
-		if a.Player.Y == chunk.Width-1 {
-			if a.Player.Chunk.Y != 1 {
-				a.Player.Y = 0
-				a.Player.Chunk.Y++
+		if a.Game.Player.Y == chunk.Width-1 {
+			if a.Game.Player.Chunk.Y != 1 {
+				a.Game.Player.Y = 0
+				a.Game.Player.Chunk.Y++
 				ret = RenderIncremental
 			}
 		} else {
-			a.Player.Y++
+			a.Game.Player.Y++
 			ret = RenderIncremental
 		}
 	}
 
 	switch dz {
 	case -1:
-		if a.Player.Z > 0 {
-			a.Player.Z--
+		if a.Game.Player.Z > 0 {
+			a.Game.Player.Z--
 			ret = RenderIncremental
 		}
 	case 1:
-		if a.Player.Z < chunk.Height-1 {
-			a.Player.Z++
+		if a.Game.Player.Z < chunk.Height-1 {
+			a.Game.Player.Z++
 			ret = RenderIncremental
 		}
 	}

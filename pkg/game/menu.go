@@ -170,18 +170,18 @@ func NewMainMenu() *StaticMenu {
 			func(app *Application) RenderRequest {
 				log.Printf("game.StaticMenu::Actions[0]: Selected New Game")
 				app.InGame = true
-				app.ActiveChunks[0] = app.Generator.Generate(-1, -1)
-				app.ActiveChunks[1] = app.Generator.Generate(0, -1)
-				app.ActiveChunks[2] = app.Generator.Generate(1, -1)
-				app.ActiveChunks[3] = app.Generator.Generate(-1, 0)
-				app.ActiveChunks[4] = app.Generator.Generate(0, 0)
-				app.ActiveChunks[5] = app.Generator.Generate(1, 0)
-				app.ActiveChunks[6] = app.Generator.Generate(-1, 1)
-				app.ActiveChunks[7] = app.Generator.Generate(0, 1)
-				app.ActiveChunks[8] = app.Generator.Generate(1, 1)
-				app.Player.X = chunk.Width / 2
-				app.Player.Y = chunk.Length / 2
-				app.Player.Z = 33
+				app.Game.ActiveChunks[0] = app.Game.Generator.Generate(-1, -1)
+				app.Game.ActiveChunks[1] = app.Game.Generator.Generate(0, -1)
+				app.Game.ActiveChunks[2] = app.Game.Generator.Generate(1, -1)
+				app.Game.ActiveChunks[3] = app.Game.Generator.Generate(-1, 0)
+				app.Game.ActiveChunks[4] = app.Game.Generator.Generate(0, 0)
+				app.Game.ActiveChunks[5] = app.Game.Generator.Generate(1, 0)
+				app.Game.ActiveChunks[6] = app.Game.Generator.Generate(-1, 1)
+				app.Game.ActiveChunks[7] = app.Game.Generator.Generate(0, 1)
+				app.Game.ActiveChunks[8] = app.Game.Generator.Generate(1, 1)
+				app.Game.Player.X = chunk.Width / 2
+				app.Game.Player.Y = chunk.Length / 2
+				app.Game.Player.Z = 33
 				app.PopMenu()
 				return RenderFull
 			},
