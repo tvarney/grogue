@@ -18,17 +18,19 @@ const (
 
 // DefaultDefinitions returns the default block and floor tile definitions.
 func DefaultDefinitions() ([]Definition, []Definition) {
-	return []Definition{
-			{Name: "empty"},
-			{Name: "{.material}"},
-			{Name: "{.material}"},
-			{Name: "rough {.material} wall"},
-			{Name: "smooth {.material} wall"},
-		}, []Definition{
-			{Name: "empty"},
-			{Name: "{.material}"},
-			{Name: "{.material}"},
-			{Name: "rough {.material} floor"},
-			{Name: "smooth {.material} floor"},
-		}
+	blocks := []Definition{
+		{ID: "block-empty", Name: "empty"},
+		{ID: "block-stone", Name: "{{.Solid.Name}}"},
+		{ID: "block-soil", Name: "{{.Solid.Name}}"},
+		{ID: "block-wall-rough", Name: "rough {{.Solid.Adjective}} wall"},
+		{ID: "block-wall-smooth", Name: "smooth {{.Solid.Adjective}} wall"},
+	}
+	floors := []Definition{
+		{ID: "floor-empty", Name: "empty"},
+		{ID: "floor-stone", Name: "{{.Solid.Name}}"},
+		{ID: "floor-soil", Name: "{{.Solid.Name}}"},
+		{ID: "floor-rough", Name: "rough {{.Solid.Adjective}} floor"},
+		{ID: "floor-smooth", Name: "smooth {{.Solid.Adjective}} floor"},
+	}
+	return blocks, floors
 }

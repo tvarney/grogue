@@ -95,6 +95,8 @@ func (d *Driver) drawGame(app *game.Application) {
 		d.screen.SetContent(app.Player.X, app.Player.Y, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
 		currTile := currChunk.Get(app.Player.X, app.Player.Y, app.Player.Z)
 		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %2d | Random: 0x%08X", app.Player.Z, currTile.Random), tcell.StyleDefault)
+		d.clearLine(chunk.Length + 1)
+		d.drawString(0, chunk.Length+1, fmt.Sprintf("Tile: %s", currTile.Describe(app.Blocks, app.Floors, app.Materials)), tcell.StyleDefault)
 
 		d.screen.Show()
 	}
@@ -153,4 +155,13 @@ func (d *Driver) drawString(x, y int, str string, style tcell.Style) {
 
 func (d *Driver) drawStringCentered(y int, str string, style tcell.Style) {
 	d.drawString((d.width-len(str))/2, y, str, style)
+}
+
+func (d *Driver) clearLine(y int) {
+	if y >= d.height {
+		return
+	}
+	for x := 0; x < d.width; x++ {
+		d.screen.SetContent(x, y, ' ', nil, tcell.StyleDefault)
+	}
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/tvarney/grogue/pkg/game/chunk"
 	"github.com/tvarney/grogue/pkg/game/material"
+	"github.com/tvarney/grogue/pkg/game/tile"
 )
 
 // Application is the main game struct, which holds application and game
@@ -13,6 +14,8 @@ type Application struct {
 	Running      bool
 	InGame       bool
 	Materials    []*material.Material
+	Blocks       []tile.Definition
+	Floors       []tile.Definition
 	ActiveChunks [9]*chunk.Chunk
 	Generator    *chunk.Generator
 
@@ -26,10 +29,13 @@ type Application struct {
 func New() *Application {
 	mats := material.DefaultMaterials()
 	log.Printf("game::New(): Using %d materials", len(mats))
+	blocks, floors := tile.DefaultDefinitions()
 	app := &Application{
 		Running:   true,
 		InGame:    false,
 		Materials: mats,
+		Blocks:    blocks,
+		Floors:    floors,
 		Generator: chunk.NewGenerator(mats),
 
 		menu:  make([]Menu, 0, 10),

@@ -1,6 +1,12 @@
 package tile
 
-import "github.com/tvarney/grogue/pkg/game/material"
+import (
+	"log"
+	"strings"
+	"text/template"
+
+	"github.com/tvarney/grogue/pkg/game/material"
+)
 
 const (
 	HasGrass StateFlags = 1 << iota
@@ -13,7 +19,25 @@ type ID uint16
 //
 // This type holds the static information about what a tile is.
 type Definition struct {
+	ID   string
 	Name string
+
+	nametemplate *template.Template
+}
+
+// GetName returns the name of the tile represented by the given state.
+func (d *Definition) GetName(mat *material.Material) string {
+	if d.nametemplate == nil {
+		d.nametemplate = template.New(d.ID)
+		_, err := d.nametemplate.Parse(d.Name)
+		if err != nil {
+			log.Printf("Error parsing name template for %s", d.ID)
+		}
+	}
+
+	sb := strings.Builder{}
+	d.nametemplate.Execute(&sb, mat)
+	return sb.String()
 }
 
 // StateFlags is a bitfield of flags for a tile state.
@@ -32,4 +56,17 @@ type State struct {
 	Flags  StateFlags
 	Value  uint16
 	Random uint32
+}
+
+// Describe gets a descriptive name of the tile.
+func (s *State) Describe(blocks, floors []Definition, mats []*material.Material) string {
+	if s.Flags&HasGrass != 0 {
+		return "grass"
+	}
+
+	def, mat := &blocks[s.Block.Definition], mats[s.Block.Material]
+	if s.Block.Definition == BlockEmpty {
+		def, mat = &floors[s.Floor.Definition], mats[s.Floor.Definition]
+	}
+	return def.GetName(mat)
 }
