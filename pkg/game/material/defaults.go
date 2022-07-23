@@ -4,6 +4,11 @@ import (
 	"github.com/tvarney/grogue/pkg/game/color"
 )
 
+// DefaultMaterials returns an array of materials.
+//
+// This is a placeholder function; eventually this will be replaced by reading
+// data files, with only the Air, Bedrock, and Water materials being
+// pre-defined.
 func DefaultMaterials() []*Material {
 	return []*Material{
 		{

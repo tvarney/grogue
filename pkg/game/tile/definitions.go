@@ -16,6 +16,7 @@ const (
 	FloorSmooth
 )
 
+// DefaultDefinitions returns the default block and floor tile definitions.
 func DefaultDefinitions() ([]Definition, []Definition) {
 	return []Definition{
 			{Name: "empty"},

@@ -2,6 +2,11 @@ package game
 
 import "github.com/tvarney/grogue/pkg/game/chunk"
 
+// UpdateMovePlayer implements player movement.
+//
+// This function takes a delta-x, delta-y, and delta-z value; these values
+// are assumed to be one of -1, 0, or 1. All other values are not handled
+// (yet).
 func (a *Application) UpdateMovePlayer(dx, dy, dz int) RenderRequest {
 	ret := RenderNoChange
 

@@ -7,7 +7,7 @@ const (
 	prime32 uint32 = 0x01000193
 )
 
-// Hash32 is a immutable hash value.
+// Hash32 is an immutable hash value.
 //
 // This type implements the FNV-1a hash algorithm; to properly use it, all
 // hash values must start as the Initial32 constant. Updating the hash value

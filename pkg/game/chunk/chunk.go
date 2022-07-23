@@ -36,6 +36,13 @@ func New() *Chunk {
 	return &Chunk{}
 }
 
+// Get the tile at the given (x,y,z) coordinates.
+//
+// This function does no bounds checking, and as such may result in a panic if
+// the coordinates fall outside of the chunk boundaries. Tiles are stored by
+// value in the chunk, while this function returns a pointer to the tile. This
+// allows mutation of the tile by the caller of this function. As such, there
+// is no corresponding `Set` function.
 func (c *Chunk) Get(x, y, z int) *tile.State {
 	return &(c.Tiles[(z*LayerSize)+(y*Width)+x])
 }
