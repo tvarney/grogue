@@ -3,6 +3,7 @@ module github.com/tvarney/grogue
 go 1.18
 
 require (
+	github.com/aquilax/go-perlin v1.1.0
 	github.com/gdamore/tcell v1.4.0
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6

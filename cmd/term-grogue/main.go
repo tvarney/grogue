@@ -20,9 +20,10 @@ func main() {
 
 func run(args []string) error {
 	debug := kingpin.Flag("debug", "enable debug logging").Short('D').Bool()
+	seed := kingpin.Flag("seed", "world random seed").Short('s').Default("123456").Int64()
 	_ = kingpin.Parse()
 
-	app := game.New()
+	app := game.New(*seed)
 	driver := terminal.New()
 
 	if *debug {

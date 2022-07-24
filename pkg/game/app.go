@@ -20,7 +20,7 @@ type Application struct {
 }
 
 // New returns a new Application instance.
-func New() *Application {
+func New(seed int64) *Application {
 	mats := material.DefaultMaterials()
 	log.Printf("game::New(): Using %d materials", len(mats))
 	blocks, floors := tile.DefaultDefinitions()
@@ -31,7 +31,7 @@ func New() *Application {
 			Materials: mats,
 			Blocks:    blocks,
 			Floors:    floors,
-			Generator: chunk.NewGenerator(mats),
+			Generator: chunk.NewGenerator(seed, mats),
 		},
 
 		menu:  make([]Menu, 0, 10),

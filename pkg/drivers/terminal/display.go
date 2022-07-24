@@ -61,46 +61,78 @@ func (d *Driver) drawGame(app *game.Application) {
 				break
 			}
 
-			t := currChunk.Get(int(x), int(y), game.Player.Z)
-
-			block := t.Block.Definition
-			floor := t.Floor.Definition
-			if block == tile.BlockEmpty {
-				if floor == tile.FloorEmpty {
-					d.screen.SetContent(int(x), int(y), '.', nil, emptyStyle)
-				} else {
-					if t.Flags&tile.HasGrass != 0 {
-						// Tile selection from a random value uses the random value as-is.
-						// This decouples the value from that selection.
-						r := (t.Random >> 16) | (t.Random << 16)
-						gc := grassStyles[int(r)%len(grassStyles)]
-						d.screen.SetContent(int(x), int(y), d.grass.Rune(0, 0, x, y, t), nil, gc)
-					} else {
-						mat := game.Materials[t.Floor.Material]
-						d.screen.SetContent(
-							int(x), int(y),
-							d.floors[floor].Rune(0, 0, x, y, t), nil,
-							tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value()))),
-						)
-					}
-				}
-			} else {
-				mat := game.Materials[t.Block.Material]
-				d.screen.SetContent(
-					int(x), int(y),
-					d.blocks[block].Rune(0, 0, x, y, t), nil,
-					tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value()))),
-				)
-			}
+			d.drawTile(game, currChunk, game.Player.Chunk.X, game.Player.Chunk.Y, x, y)
 		}
-		d.screen.SetContent(game.Player.X, game.Player.Y, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
-		currTile := currChunk.Get(game.Player.X, game.Player.Y, game.Player.Z)
-		d.drawString(0, chunk.Length, fmt.Sprintf("Z: %2d | Random: 0x%08X", game.Player.Z, currTile.Random), tcell.StyleDefault)
-		d.clearLine(chunk.Length + 1)
-		d.drawString(0, chunk.Length+1, fmt.Sprintf("Tile: %s", currTile.Describe(game.Blocks, game.Floors, game.Materials)), tcell.StyleDefault)
-
-		d.screen.Show()
 	}
+	d.screen.SetContent(game.Player.X, game.Player.Y, d.player.Rune(0, 0, 0, 0, nil), nil, playerStyle)
+	currTile := currChunk.Get(game.Player.X, game.Player.Y, game.Player.Z)
+	d.drawString(0, chunk.Length, fmt.Sprintf("Z: %2d | Random: 0x%08X", game.Player.Z, currTile.Random), tcell.StyleDefault)
+	d.clearLine(chunk.Length + 1)
+	d.drawString(0, chunk.Length+1, fmt.Sprintf("Tile: %s", currTile.Describe(game.Blocks, game.Floors, game.Materials)), tcell.StyleDefault)
+
+	d.screen.Show()
+}
+
+func (d *Driver) drawTile(game *game.Game, c *chunk.Chunk, cx, cy int, x, y uint16) {
+	t := c.Get(int(x), int(y), game.Player.Z)
+
+	// Tile contains liquid
+	if t.Liquid > 0 {
+		mat := game.Materials[t.LiquidMat]
+		s := tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Liquid.Color.Value())))
+		d.screen.SetContent(int(x), int(y), d.liquid.Rune(cx, cy, x, y, t), nil, s)
+		return
+	}
+
+	// Tile contains a block
+	block := t.Block.Definition
+	if block != tile.BlockEmpty {
+		mat := game.Materials[t.Block.Material]
+		s := tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value())))
+		d.screen.SetContent(int(x), int(y), d.blocks[block].Rune(cx, cy, x, y, t), nil, s)
+		return
+	}
+
+	// Tile has a floor
+	floor := t.Floor.Definition
+	if floor != tile.FloorEmpty {
+		if t.Flags&tile.HasGrass != 0 {
+			r := (t.Random >> 16) | (t.Random << 16)
+			gc := grassStyles[int(r)%len(grassStyles)]
+			d.screen.SetContent(int(x), int(y), d.grass.Rune(0, 0, x, y, t), nil, gc)
+			return
+		}
+		mat := game.Materials[t.Floor.Material]
+		s := tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value())))
+		d.screen.SetContent(int(x), int(y), d.floors[floor].Rune(cx, cy, x, y, t), nil, s)
+		return
+	}
+
+	if game.Player.Z == 0 {
+		d.screen.SetContent(int(x), int(y), '.', nil, emptyStyle)
+		return
+	}
+
+	below := c.Get(int(x), int(y), game.Player.Z-1)
+	// Below is liquid
+	if below.Liquid > 0 {
+		mat := game.Materials[below.LiquidMat]
+		s := tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Liquid.Color.Value())))
+		d.screen.SetContent(int(x), int(y), d.liquid.Rune(cx, cy, x, y, below), nil, s)
+		return
+	}
+
+	// Below is solid
+	block = below.Block.Definition
+	if block != tile.BlockEmpty {
+		mat := game.Materials[t.Floor.Material]
+		s := tcell.StyleDefault.Foreground(tcell.NewHexColor(int32(mat.Solid.Color.Value())))
+		d.screen.SetContent(int(x), int(y), d.floors[tile.FloorRough].Rune(cx, cy, x, y, below), nil, s)
+		return
+	}
+
+	// Below is 'empty'
+	d.screen.SetContent(int(x), int(y), '.', nil, emptyStyle)
 }
 
 func (d *Driver) drawMenu(app *game.Application, menu game.Menu) {

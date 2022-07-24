@@ -2,7 +2,9 @@ package chunk
 
 import (
 	"log"
+	"math/bits"
 
+	perlin "github.com/aquilax/go-perlin"
 	"github.com/tvarney/grogue/pkg/game/material"
 	"github.com/tvarney/grogue/pkg/game/simplehash"
 	"github.com/tvarney/grogue/pkg/game/tile"
@@ -17,16 +19,20 @@ type Generator struct {
 	Water   material.ID
 	Stone   []material.ID
 	Soil    []material.ID
+
+	surface *perlin.Perlin
 }
 
 // NewGenerator creates a new Generator instance with the given materials.
-func NewGenerator(mats []*material.Material) *Generator {
+func NewGenerator(seed int64, mats []*material.Material) *Generator {
 	log.Printf("game.chunk::NewGenerator(): given %d materials", len(mats))
 	g := &Generator{
 		Materials: mats,
 		Air:       0,
 		Water:     1,
 		Bedrock:   2,
+
+		surface: perlin.NewPerlin(2, 2, 3, seed),
 	}
 
 	// Skip the first 3 (which must always exist), but otherwise categorize
@@ -45,10 +51,8 @@ func NewGenerator(mats []*material.Material) *Generator {
 	return g
 }
 
-// Generate creates a new chunk using the settings from the generator.
-//
-// Right now this just generates a simple flat chunk.
-func (g *Generator) Generate(cx, cy int64) *Chunk {
+// Flat creates a new flat chunk using the settings from the generator.
+func (g *Generator) Flat(cx, cy int64) *Chunk {
 	const layertiles = Width * Length
 
 	bedrock := tile.State{
@@ -115,4 +119,42 @@ func (g *Generator) Generate(cx, cy int64) *Chunk {
 	}
 
 	return c
+}
+
+// Generate creates a new randomized chunk.
+func (g *Generator) Generate(cx, cy int64) *Chunk {
+	chunk := g.Flat(cx, cy)
+
+	for y := 0; y < Length; y++ {
+		for x := 0; x < Width; x++ {
+			fx := float64(cx) + float64(x)/Width
+			fy := float64(cy) + float64(y)/Length
+			n := g.surface.Noise2D(fx, fy)
+			switch {
+			case n < 0.005:
+				// Carve out for water
+				// Remove surface floor, clear flags
+				t := chunk.Get(x, y, 33)
+				t.Floor = tile.Part{
+					Definition: tile.FloorEmpty,
+					Material:   g.Air,
+				}
+				t.Flags = 0
+
+				// Remove block from below, add liquid
+				t = chunk.Get(x, y, 32)
+				t.Block = tile.Part{
+					Definition: tile.BlockEmpty,
+					Material:   g.Air,
+				}
+				t.Liquid = 7
+				t.LiquidMat = g.Water
+			case n < 0.05:
+				// Remove grass
+				chunk.Get(x, y, 33).Flags &= tile.StateFlags(bits.Reverse16(uint16(tile.HasGrass)))
+			}
+		}
+	}
+
+	return chunk
 }

@@ -27,8 +27,8 @@ func (r Random) Rune(cx, cy int, x, y uint16, t *tile.State) rune {
 // LiquidNumber is a displayer for liquids which shows their depth.
 type LiquidNumber struct{}
 
-func (l LiquidNumber) Rune(cx, cy int, x, y, value uint16) rune {
-	return rune(uint32('0') + uint32(value&0x0007))
+func (l LiquidNumber) Rune(cx, cy int, x, y uint16, t *tile.State) rune {
+	return rune(uint32('0') + uint32(t.Liquid&0x0007))
 }
 
 func DefaultBlocks() []Displayer {

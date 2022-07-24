@@ -51,22 +51,29 @@ type Part struct {
 
 // State represents a concrete tile.
 type State struct {
-	Block  Part
-	Floor  Part
-	Flags  StateFlags
-	Value  uint16
-	Random uint32
+	Block     Part
+	Floor     Part
+	Flags     StateFlags
+	Value     uint16
+	Liquid    uint16
+	LiquidMat material.ID
+	Random    uint32
 }
 
 // Describe gets a descriptive name of the tile.
 func (s *State) Describe(blocks, floors []Definition, mats []*material.Material) string {
+	if s.Liquid > 0 {
+		return mats[s.LiquidMat].Liquid.Name
+	}
 	if s.Flags&HasGrass != 0 {
 		return "grass"
 	}
 
-	def, mat := &blocks[s.Block.Definition], mats[s.Block.Material]
-	if s.Block.Definition == BlockEmpty {
-		def, mat = &floors[s.Floor.Definition], mats[s.Floor.Definition]
+	if s.Block.Definition != BlockEmpty {
+		return (&blocks[s.Block.Definition]).GetName(mats[s.Block.Material])
 	}
-	return def.GetName(mat)
+	if s.Floor.Definition != BlockEmpty {
+		return (&floors[s.Floor.Definition]).GetName(mats[s.Floor.Material])
+	}
+	return "empty"
 }

@@ -15,6 +15,7 @@ type Driver struct {
 	blocks []Displayer
 	floors []Displayer
 	grass  Displayer
+	liquid Displayer
 	player Displayer
 
 	logfile string
@@ -30,6 +31,7 @@ func New() *Driver {
 		blocks: DefaultBlocks(),
 		floors: DefaultFloors(),
 		grass:  Random([]rune{'.', '.', '.', ',', ';'}),
+		liquid: LiquidNumber{},
 		player: Simple('☺'),
 	}
 }
