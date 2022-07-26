@@ -8,8 +8,8 @@ import (
 
 	perlin "github.com/aquilax/go-perlin"
 	"github.com/tvarney/grogue/pkg/game/material"
-	"github.com/tvarney/grogue/pkg/game/simplehash"
 	"github.com/tvarney/grogue/pkg/game/tile"
+	"github.com/tvarney/grogue/pkg/simplehash"
 )
 
 const CaveOffset = 5
