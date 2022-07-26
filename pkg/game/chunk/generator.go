@@ -215,11 +215,19 @@ func (g *Generator) Generate(cx, cy int64) *Chunk {
 	for z := 0; z < len(g.caveParams); z++ {
 		for y := uint16(0); y < Length; y++ {
 			for x := uint16(0); x < Width; x++ {
-				if g.caveParams[z].IsCave(g.caves, cx, cy, x, y) {
-					t := chunk.Get(int(x), int(y), int(z)+CaveOffset)
-					t.Block.Definition = tile.BlockEmpty
-					t.Block.Material = g.Air
+				if !g.caveParams[z].IsCave(g.caves, cx, cy, x, y) {
+					continue
 				}
+				t := chunk.Get(int(x), int(y), int(z)+CaveOffset)
+				t.Block.Definition = tile.BlockEmpty
+				t.Block.Material = g.Air
+
+				below := chunk.Get(int(x), int(y), int(z)+CaveOffset-1)
+				if below.Block.Definition != tile.BlockEmpty {
+					continue
+				}
+				t.Floor.Definition = tile.FloorEmpty
+				t.Floor.Material = g.Air
 			}
 		}
 	}
